@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs">
+	<insert id="insertBoard" parameterType="com.sp.bbs.Board">
+		INSERT INTO bbs (num,name,subject,content,ipAddr,pwd,hitCount)
+			VALUES(bbs_seq.NEXTVAL,#{name},#{subject},#{content},#{ipAddr},#{pwd},#{hitCount})
+	</insert>
+	
+	<sql id="where-list">
+		<if test="searchKey=='name'">
+			name=#{searchValue}
+		</if>
+		<if test="searchKey=='subject'">
+			INSTR(subject,#{searchValue}) &gt; 0
+		</if>
+		<if test="searchKey=='content'">
+			INSTR(content,#{searchValue}) &gt; 0
+		</if>
+		<if test="searchKey=='created'">
+			TO_CHAR(created,'YYYY-MM-DD') = #{searchValue}
+			OR TO_CHAR(created, 'YYYYMMDD') = #{searchValue}
+		</if>
+	</sql>
+	
+	<select id="dataCount" resultType="Integer" parameterType="map">
+		SELECT NVL(COUNT(*),0) FROM bbs
+		<where>
+			<if test="searchValue != null and searchValue !=''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="listBoard" resultType="com.sp.bbs.Board" parameterType="map">
+	 	SELECT * FROM (
+	 		SELECT ROWNUM rnum, tb.* FROM (
+				SELECT num, name, subject, hitCount, created
+				FROM bbs 
+				<where>
+					<if test="searchValue != null and searchValue !=''">
+						<include refid="where-list"/>
+					</if>
+				</where>
+				ORDER BY created DESC 
+	 			) tb WHERE ROWNUM  &lt;= #{end}
+	 	) WHERE rnum  &gt;= #{start}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE bbs SET hitCount=hitCount+1 WHERE num=#{num}
+	</update>
+	<!-- 게시물 가져오기 -->
+	<select id="readBoard" parameterType="Integer" resultType="com.sp.bbs.Board">
+		SELECT num, name, subject, ipAddr, hitCount, created, pwd, content FROM bbs WHERE num=#{num}
+	</select>
+	
+	<!-- 이전글 / 다음글 -->
+	<select id="preReadBoard" resultType="com.sp.bbs.Board" parameterType="map">
+		SELECT tb.* FROM(
+			SELECT num, subject FROM bbs
+			<where>
+				<if test="searchValue != null and searchValue !=''">
+					<include refid="where-list"/>
+				</if>
+				AND (num &gt; #{num})
+			</where>
+			ORDER BY num ASC
+		) tb WHERE ROWNUM=1
+	</select>
+	<select id="nextReadBoard" resultType="com.sp.bbs.Board" parameterType="map">
+		SELECT tb.* FROM(
+			SELECT num, subject FROM bbs
+			<where>
+				<if test="searchValue != null and searchValue !=''">
+					<include refid="where-list"/>
+				</if>
+				AND (num &lt; #{num})
+			</where>
+			ORDER BY num DESC
+		) tb WHERE ROWNUM=1
+	</select>
+	
+</mapper>
