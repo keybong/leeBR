@@ -1,5 +1,6 @@
-package com.sp.bbs;
+package com.sp.board;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,29 +9,40 @@ import org.springframework.stereotype.Service;
 
 import com.sp.common.dao.CommonDAO;
 
-@Service
-public class BoardServiceImpl implements BoardService {
+@Service("board.boardService")
+public class BoardServiceImpl implements BoardService{
+
 	@Autowired
 	private CommonDAO dao;
 	
 	@Override
-	public int insertBoard(Board dto) {
+	public int insertBoard(Board dto, String mode) {
 		int result=0;
-		
 		try {
-			result=dao.insertData("bbs.insertBoard", dto);
+			if(mode.equals("created")) {
+				//새글일 때
+				int seq=dao.selectOne("board.seq");
+				dto.setBoardNum(seq);
+				dto.setGroupNum(seq);
+				dto.setDepth(0);
+				dto.setOrderNo(0);
+				dto.setParent(0);
+				result=dao.insertData("board.insertBoard", dto);
+			}else {
+				//답변일 때
+				
+			}
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
-		
 		return result;
 	}
 
 	@Override
 	public List<Board> listBoard(Map<String, Object> map) {
-		List<Board> list=null;
+		List<Board> list=new ArrayList<>();
 		try {
-			list=dao.selectList("bbs.listBoard", map);
+			list=dao.selectList("board.listBoard", map);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
@@ -40,9 +52,8 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public int dataCount(Map<String, Object> map) {
 		int result=0;
-		
 		try {
-			result=dao.selectOne("bbs.dataCount", map);
+			result=dao.selectOne("board.dataCountBoard", map);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
@@ -50,36 +61,35 @@ public class BoardServiceImpl implements BoardService {
 	}
 
 	@Override
-	public Board readBoard(int num) {
-		Board dto=null;
-		try {
-			dto=dao.selectOne("bbs.readBoard", num);
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-		return dto;
-	}
-
-	@Override
-	public int updateHitCount(int num) {
+	public int updateHitCount(int boardNum) {
 		int result=0;
 		try {
-			result=dao.updateData("bbs.updateHitCount", num);
+			result=dao.updateData("board.updateHitCount", boardNum);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
 		return result;
+	}
+
+	@Override
+	public Board readBoard(int boardNum) {
+		Board dto=null;
+		try {
+			dto=dao.selectOne("board.readBoard", boardNum);
+		} catch (Exception e) {
+			
+		}
+		return dto;
 	}
 
 	@Override
 	public Board preReadBoard(Map<String, Object> map) {
 		Board dto=null;
 		try {
-			dto=dao.selectOne("bbs.preReadBoard", map);
+			dto=dao.selectOne("board.preReadBoard", map);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
-		
 		return dto;
 	}
 
@@ -87,7 +97,7 @@ public class BoardServiceImpl implements BoardService {
 	public Board nextReadBoard(Map<String, Object> map) {
 		Board dto=null;
 		try {
-			dto=dao.selectOne("bbs.nextReadBoard", map);
+			dto=dao.selectOne("board.nextReadBoard", map);
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
@@ -96,35 +106,14 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public int updateBoard(Board dto) {
-		int result=0;
-		try {
-			result=dao.updateData("bbs.updateBoard", dto);
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-		return result;
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
-	public int deleteBoard(int num) {
-		int result=0;
-		try {
-			result=dao.deleteData("bbs.deleteBoard",num);
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-		return result;
-	}
-
-	@Override
-	public int deleteBoardList(List<Integer> list) {
-		int result=0;
-		try {
-			result=dao.deleteData("bbs.deleteBoardList", list);
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
-		return result;
+	public int deleteBoard(int boardNum) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	

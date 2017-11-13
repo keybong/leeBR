@@ -83,4 +83,25 @@
 		) tb WHERE ROWNUM=1
 	</select>
 	
+	
+	<update id="updateBoard" parameterType="com.sp.bbs.Board">
+		UPDATE bbs SET subject=#{subject} , name=#{name} , pwd=#{pwd} ,
+		content=#{content}, ipAddr=#{ipAddr} WHERE num=#{num}
+	
+	</update>
+	
+	<delete id="deleteBoard" parameterType="Integer">
+		DELETE bbs WHERE num=#{num}
+	</delete>
+	
+	<delete id="deleteBoardList" parameterType="java.util.List">
+		DELETE FROM bbs WHERE num 
+		
+		IN <foreach collection="list" item="num" index="index"
+			open="(" separator="," close=")">
+				#{num}
+			</foreach>
+	
+	</delete>
+	
 </mapper>

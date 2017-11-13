@@ -55,7 +55,10 @@ $(function (){
 			return;
 		}
 		
-		alert("삭제 ㄴ");
+		var f=document.deleteListForm;
+		f.action="<%=cp%>/bbs/deleteList";
+		f.submit();
+		
 	});
 	
 });
@@ -115,6 +118,8 @@ $(function (){
 	</tr>
 	</c:forEach>
 	</table>
+	<input type="hidden" name="page" value="${page}">
+	<input type="hidden" name="rows" value="${rows}">
 	</form>
 	
 	<table style="width: 1300px;">

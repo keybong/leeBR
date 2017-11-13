@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+
+	<!-- 시퀀스 번호 가져오기 -->
+	<select id="seq" resultType="Integer">
+		SELECT board_seq.NEXTVAL FROM dual
+	</select>
+	
+	<!-- 새글 및 답변 글 저장하기 -->
+	<insert id="insertBoard" parameterType="com.sp.board.Board">
+		INSERT INTO board (boardNum, name, pwd, subject, content,
+		 ipAddr, groupNum, depth, orderNo, parent)
+		 VALUES (#{boardNum},#{name},#{pwd},#{subject},
+		 #{content},#{ipAddr},#{groupNum},#{depth},#{orderNo},#{parent})
+	</insert>
+	
+	<sql id="where-list">
+		<if test="searchKey=='name'">
+			name=#{searchValue}
+		</if>
+		<if test="searchKey=='subject'">
+			INSTR(subject, #{searchValue}) &gt; 0
+		</if>
+		<if test="searchKey=='content'">
+			DBMS_LOB.INSTR(content,#{searchValue}) &gt; 0
+		</if>
+		<if test="searchKey=='created'">
+			TO_CHAR(created, 'YYYY-MM-DD')=#{searchValue} 
+			OR TO_CHAR(created, 'YYYYMMDD')=#{searchValue}
+		</if>
+	</sql>
+	
+	<select id="dataCountBoard" resultType="Integer" parameterType="map">
+		SELECT NVL(COUNT(*),0) FROM board
+		<where>
+			<if test="searchValue !=null and searchValue !=''">
+				<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+
+	<select id="listBoard" parameterType="map" resultType="com.sp.board.Board">
+		SELECT * FROM(
+				SELECT ROWNUM rnum, tb.* FROM (
+					SELECT boardNum, subject, groupNum, depth, 
+					orderNo, hitCount, TO_CHAR(created,'YYYY-MM-DD') created, pwd, name,
+					content, parent, ipAddr FROM board 
+					<where>
+						<if test="searchValue !=null and searchValue !=''">
+							<include refid="where-list"/>
+						</if>
+					</where>
+					ORDER BY groupNum DESC, orderNo ASC ) tb 
+					WHERE ROWNUM &lt;= #{end}) 
+			WHERE rnum &gt; = #{start}
+	</select>
+	
+	<select id="readBoard" resultType="com.sp.board.Board" parameterType="Integer">
+		SELECT boardNum, name, pwd, subject, content, ipAddr, groupNum, depth,
+		orderNo, parent, hitCount, created FROM board WHERE boardNum=#{boardNum}
+	</select>
+	
+	<select id="preReadBoard" resultType="com.sp.board.Board" parameterType="map">
+			SELECT tb.* FROM (
+					SELECT boardNum, subject FROM board 
+					<where>
+						<if test="searchValue !=null and searchValue !=''">
+							<include refid="where-list"/>
+						</if>
+						<![CDATA[
+							AND ((groupNum=#{groupNum}
+								AND orderNo <#{orderNo})
+								OR (groupNum >#{groupNum}))
+						]]>
+					</where>
+					ORDER BY groupNum DESC, orderNo ASC ) tb 
+					WHERE ROWNUM = 1
+	</select>
+	
+	<select id="nextReadBoard" resultType="com.sp.board.Board" parameterType="map">
+			SELECT tb.* FROM (
+					SELECT boardNum, subject FROM board 
+					<where>
+						<if test="searchValue !=null and searchValue !=''">
+							<include refid="where-list"/>
+						</if>
+						<![CDATA[
+							AND ((groupNum=#{groupNum}
+								AND orderNo >#{orderNo})
+								OR (groupNum <#{groupNum}))
+						]]>
+					</where>
+					ORDER BY groupNum DESC, orderNo ASC ) tb 
+					WHERE ROWNUM = 1
+	</select>
+	
+	<update id="updateHitCount" parameterType="Integer">
+		UPDATE board SET hitCount=hitCount+1 WHERE boardNum=#{boardNum}
+	</update>
+	
+	
+</mapper>

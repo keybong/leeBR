@@ -51,7 +51,7 @@ function sendOk(){
 	else if(mode=="update")
 		f.action=""; --%>
 
-	f.action="<%=cp%>/bbs/${mode}";
+	f.action="<%=cp%>/board/${mode}";
 	f.submit();
 }
 </script>
@@ -62,7 +62,7 @@ function sendOk(){
 <div align="center">
 <form name="createdForm" method="post">
 <table style="width: 700px; border-collapse: collapse;">
-	<tr style="border-bottom: 1px solid #BDBDBD;"><td colspan="2"><h3>| 게시판</h3></td></tr>
+	<tr style="border-bottom: 1px solid #BDBDBD;"><td colspan="2"><h3>| 질문과 답변</h3></td></tr>
 	
 	<tr height="40px;" style="border-bottom: 1px solid #777777;">
 		<td bgcolor="#DDDDDD" width="20%;" style="text-align: center;">제목</td>
@@ -82,11 +82,6 @@ function sendOk(){
 	</tr>
 	<tr height="40px;">
 		<td colspan="2" align="center">
-			<c:if test="${mode=='update'}">
-				<input type="hidden" name="num" value="${dto.num}">
-				<input type="hidden" name="page" value="${page}">
-				<input type="hidden" name="rows" value="${rows}">
-			</c:if>
 			<button type="button" onclick="sendOk();">${mode=="created"? "등록완료":"수정완료"}</button>
 			<button type="reset">다시입력</button>
 			<button type="button" onclick="javascript:location.href='<%=cp%>/bbs/list';">${mode=="created"? "등록취소":"수정취소"}</button>
