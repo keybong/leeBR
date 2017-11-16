@@ -15,9 +15,9 @@
 
 
 <script type="text/javascript">
-function deleteBoard(boardNum){
+function deleteBoard(num){
 	if(confirm("게시물을 삭제하시겠습니까?")){
-		var url="<%=cp%>/board/delete?boardNum="+boardNum+"&page=${page}";
+		var url="<%=cp%>/notice/delete?num="+num+"&page=${page}&saveFilename=${dto.saveFilename}";
 		location.href=url;
 	}
 		
@@ -35,23 +35,30 @@ function deleteBoard(boardNum){
 	
 	<tr height="40px"  style="border-top: 1px solid #cccccc; border-bottom: 1px solid #cccccc;">
 		<td align="center" colspan="2">
-		<c:if test="${dto.depth>0}">
-		[답변]
-		</c:if>
 		${dto.subject}</td>
 	</tr>
 	<tr height="30px" style="border-bottom: 1px solid #cccccc;">
 		<td align="left">작성자: ${dto.name}</td>
 		<td align="right">${dto.created} | 조회 ${dto.hitCount}</td>
 	</tr>
-	<tr height="300px" style="border-bottom: 1px solid #cccccc;">
-		<td colspan="2" valign="top">${dto.content}</td>
+	<tr height="300px" style="border-bottom: 1px solid #cccccc; word-break: break-all;">
+		<td valign="top">${dto.content}</td>
 	</tr>
+		<c:if test="${not empty dto.saveFilename}">
+			<tr height="20px" style="border-bottom: 1px solid #cccccc;">
+				<td valign="bottom" colspan="2">첨부파일: 
+						<a href="<%=cp%>/notice/download?num=${dto.num}">
+						<img src="<%=cp%>/resource/images/disk.gif">${dto.originalFilename}
+						</a>
+						(<fmt:formatNumber value="${dto.fileSize/1024}" pattern="0.00"/> KByte)
+				</td>
+			</tr>
+		</c:if>
 	<tr height="40px" style="border-bottom: 1px solid #cccccc;">
 		<td colspan="2">
 		이전글: 
 		<c:if test="${not empty preReadDto}">
-			<a href="javascript:location.href='<%=cp%>/board/article?${query}&boardNum=${preReadDto.boardNum}'">${preReadDto.subject}</a>
+			<a href="javascript:location.href='<%=cp%>/notice/article?${query}&num=${preReadDto.num}'">${preReadDto.subject}</a>
 		</c:if>
 		</td>
 	</tr>
@@ -59,20 +66,17 @@ function deleteBoard(boardNum){
 		<td colspan="2">
 		다음글: 
 		<c:if test="${not empty nextReadDto}">
-		<a href="javascript:location.href='<%=cp%>/board/article?${query}&boardNum=${nextReadDto.boardNum}'">${nextReadDto.subject}</a>
+		<a href="javascript:location.href='<%=cp%>/notice/article?${query}&num=${nextReadDto.num}'">${nextReadDto.subject}</a>
 		</c:if>
 		</td>
 	</tr>
-	<tr height="30px">
-		<td align="right" colspan="2">from: ${dto.ipAddr}</td>
-	</tr>
 	<tr height="40px">
 		<td align="left">
-			<button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/board/reply?boardNum=${dto.boardNum}&page=${page}';">답변</button>
-			<button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/board/update?boardNum=${dto.boardNum}&page=${page}';">수정</button>
-		 	<button type="button" class="btn" onclick="deleteBoard('${dto.boardNum}');">삭제</button>
+			<button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/notice/reply?num=${dto.num}&page=${page}';">답변</button>
+			<button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/notice/update?num=${dto.num}&page=${page}';">수정</button>
+		 	<button type="button" class="btn" onclick="deleteBoard('${dto.num}');">삭제</button>
 		 </td>
-		<td align="right"> <button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/board/list?${query}';">리스트</button> </td>
+		<td align="right"> <button type="button" class="btn" onclick="javascript:location.href='<%=cp%>/notice/list?${query}';">리스트</button> </td>
 	</tr>
 </table>
 </div>

@@ -1,6 +1,7 @@
 package com.sp.board;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,19 +20,28 @@ public class BoardServiceImpl implements BoardService{
 	public int insertBoard(Board dto, String mode) {
 		int result=0;
 		try {
+			int seq=dao.selectOne("board.seq");
 			if(mode.equals("created")) {
 				//새글일 때
-				int seq=dao.selectOne("board.seq");
 				dto.setBoardNum(seq);
 				dto.setGroupNum(seq);
 				dto.setDepth(0);
 				dto.setOrderNo(0);
 				dto.setParent(0);
-				result=dao.insertData("board.insertBoard", dto);
 			}else {
 				//답변일 때
+				//orderNo 변경
+				Map<String, Object> map=new HashMap<>();
+				map.put("groupNum", dto.getGroupNum());
+				map.put("orderNo", dto.getOrderNo());
+				dao.updateData("board.updateOrderNo", map);
 				
+				dto.setBoardNum(seq);
+				dto.setDepth(dto.getDepth()+1);
+				dto.setOrderNo(dto.getOrderNo()+1);
 			}
+			result=dao.insertData("board.insertBoard", dto);
+			
 		} catch (Exception e) {
 			System.out.println(e.toString());
 		}
@@ -106,14 +116,24 @@ public class BoardServiceImpl implements BoardService{
 
 	@Override
 	public int updateBoard(Board dto) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result=0;
+		try {
+			result=dao.updateData("board.updateBoard", dto);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return result;
 	}
 
 	@Override
 	public int deleteBoard(int boardNum) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result=0;
+		try {
+			result=dao.deleteData("board.deleteBoard", boardNum);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		return result;
 	}
 	
 	

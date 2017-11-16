@@ -38,20 +38,8 @@ function sendOk(){
 		f.content.focus();
 		return;
 	}
-	var str=f.pwd.value
-	if(str.length==0){
-		alert("비밀번호를 입력해주세요");
-		f.pwd.focus();
-		return;
-	}
-	
-	
-	<%-- if(mode=="created")
-		f.action="<%=cp%>/bbs/";
-	else if(mode=="update")
-		f.action=""; --%>
 
-	f.action="<%=cp%>/board/${mode}";
+	f.action="<%=cp%>/notice/${mode}";
 	f.submit();
 }
 </script>
@@ -60,13 +48,17 @@ function sendOk(){
 </head>
 <body>
 <div align="center">
-<form name="createdForm" method="post">
+<form name="createdForm" method="post" enctype="multipart/form-data">
 <table style="width: 700px; border-collapse: collapse;">
 	<tr style="border-bottom: 1px solid #BDBDBD;"><td colspan="2"><h3>| 질문과 답변</h3></td></tr>
 	
 	<tr height="40px;" style="border-bottom: 1px solid #777777;">
 		<td bgcolor="#DDDDDD" width="20%;" style="text-align: center;">제목</td>
 		<td> <input type="text" name="subject" style="width: 460px;height: 20px; margin-left: 3px; border: 1px solid #999999; border-radius: 4px;" value="${dto.subject}"> </td>
+	</tr>
+	<tr height="40px;" style="border-bottom: 1px solid #777777;">
+		<td bgcolor="#DDDDDD" style="text-align: center;">공지여부</td>
+		<td> <input type="checkbox" name="notice" style="height: 20px; margin-left: 3px; border: 1px solid #999999; border-radius: 4px;" value="1" ${dto.notice=="1"?"checked='checked'":""}>공지</td>
 	</tr>
 	<tr height="40px;" style="border-bottom: 1px solid #777777;">
 		<td bgcolor="#DDDDDD" style="text-align: center;">작성자</td>
@@ -77,25 +69,32 @@ function sendOk(){
 		<td> <textarea name="content" style="width: 400px; height: 100px; margin-left: 3px; border: 1px solid #999999; border-radius: 4px;">${dto.content}</textarea> </td>
 	</tr>
 	<tr height="40px;" style="border-bottom: 1px solid #777777;">
-		<td bgcolor="#DDDDDD" style="text-align: center;">패스워드</td>
-		<td> <input type="password" name="pwd"  style="height: 20px; margin-left: 3px; border: 1px solid #999999; border-radius: 4px;"> </td>
+		<td bgcolor="#DDDDDD" style="text-align: center;">첨부파일</td>
+		<td> <input type="file" name="upload"  style="height: 23px; margin-left: 3px; border: 1px solid #999999; border-radius: 0px;"></td>
 	</tr>
+	<c:if test="${mode=='update'}">
+	<tr height="40px;" style="border-bottom: 1px solid #777777;">
+		<td bgcolor="#DDDDDD" style="text-align: center;">첨부파일 </td>
+		<td>
+			${dto.originalFilename}
+			<c:if test="${not empty dto.saveFilename}">
+				<a href="<%=cp%>/notice/deleteFile?num=${dto.num}&page=${page}">삭제</a>
+			</c:if>
+		</td>
+	</tr>
+	</c:if>
 	<tr height="40px;">
 		<td colspan="2" align="center">
 		<c:if test="${mode=='update'}">
-			<input type="hidden" name="boardNum" value="${dto.boardNum}">
+			<input type="hidden" name="num" value="${dto.num}">
 			<input type="hidden" name="page" value="${page}">
-		</c:if>
-		<c:if test="${mode=='reply'}">
-			<input type="hidden" name="page" value="${page}">
-			<input type="hidden" name="groupNum" value="${dto.groupNum}">
-			<input type="hidden" name="orderNo" value="${dto.orderNo}">
-			<input type="hidden" name="depth" value="${dto.depth}">
-			<input type="hidden" name="parent" value="${dto.boardNum}">
+			<input type="hidden" name="saveFilename" value="${dto.saveFilename}">
+			<input type="hidden" name="originalFilename" value="${dto.originalFilename}">
+			<input type="hidden" name="fileSize" value="${dto.fileSize}">
 		</c:if>
 			<button type="button" onclick="sendOk();">${mode=="created"? "등록완료":"수정완료"}</button>
 			<button type="reset">다시입력</button>
-			<button type="button" onclick="javascript:location.href='<%=cp%>/board/list';">${mode=="created"? "등록취소":"수정취소"}</button>
+			<button type="button" onclick="javascript:location.href='<%=cp%>/notice/list';">${mode=="created"? "등록취소":"수정취소"}</button>
 		</td>
 	</tr>
 </table>

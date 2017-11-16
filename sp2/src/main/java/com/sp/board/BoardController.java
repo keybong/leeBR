@@ -196,4 +196,80 @@ public class BoardController {
 		model.addAttribute("nextReadDto", nextReadDto);
 		return "board/article";
 	}
+	
+	@RequestMapping(value="/board/update" , method=RequestMethod.GET)
+	public String updateForm(
+			@RequestParam int boardNum,
+			@RequestParam int page,
+			Model model
+			) {
+		Board dto=service.readBoard(boardNum);
+		if(dto==null) {
+			return "redirect:/board/list?"+page;
+		}
+		
+		model.addAttribute("mode", "update");
+		model.addAttribute("dto", dto);
+		model.addAttribute("page", page);
+		return "board/created";
+	}
+	
+	@RequestMapping(value="/board/update" , method=RequestMethod.POST)
+	public String updateSubmit(
+			Board dto,
+			@RequestParam int page,
+			Model model
+			) {
+		
+		service.updateBoard(dto);
+		return "redirect:/board/list?page="+page;
+	}
+	
+	@RequestMapping(value="/board/delete")
+	public String delete(
+			@RequestParam int boardNum,
+			@RequestParam int page,
+			Model model
+			) {
+		service.deleteBoard(boardNum);
+		model.addAttribute("page", page);
+		return "redirect:/board/list";
+	}
+	
+	@RequestMapping(value="/board/reply", method=RequestMethod.GET)
+	public String replyForm(
+			@RequestParam(value="boardNum") int boardNum,
+			@RequestParam(value="page") String page,
+			Model model
+			) throws Exception {
+		
+		Board dto=service.readBoard(boardNum);
+		if(dto==null) {
+			return "redirect:/board/list?page="+page;
+		}
+		
+		String str="["+dto.getSubject()+"]에 대한 답변입니다.\n";
+		dto.setContent(str);
+		dto.setName("");
+		dto.setPwd("");
+		
+		model.addAttribute("dto", dto);
+		model.addAttribute("page", page);
+		model.addAttribute("mode", "reply");
+		
+		return "board/created";
+	}
+	
+	@RequestMapping(value="/board/reply", method=RequestMethod.POST)
+	public String replySubmit(
+			Board dto,
+			@RequestParam(value="page") String page,
+			HttpServletRequest req
+			) throws Exception {
+		
+		dto.setIpAddr(req.getRemoteAddr());
+		service.insertBoard(dto, "reply");
+		
+		return "redirect:/board/list?page="+page;
+	}
 }

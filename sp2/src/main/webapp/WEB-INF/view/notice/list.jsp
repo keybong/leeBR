@@ -50,18 +50,14 @@ function send(f){
 		<td width="15%;"  style="color: #ffffff; text-align: center;">작성자</td>
 		<td width="15%;"  style="color: #ffffff; text-align: center;">작성일</td>
 		<td width="10%;"  style="color: #ffffff; text-align: center;">조회수</td>
+		<td width="10%;"  style="color: #ffffff; text-align: center;">첨부파일</td>
 	</tr>
-	<c:forEach var="dto" items="${list}">
+	<c:if test="${page==1}">
+	<c:forEach var="dto" items="${listTop}">
 	<tr align="center" height="40px;" style="border-bottom: 1px solid #gray">
-		<td>${dto.listNum}</td>
+		<td><span style="background-color: silver;">공지</span></td>
 		<td>
-			<c:if test="${dto.depth>0}">
-			<c:forEach var="n" begin="1" end="${dto.depth}">
-				&nbsp;&nbsp;
-			</c:forEach>
-			└
-			</c:if>
-			<a href="${articleUrl}&boardNum=${dto.boardNum}">${dto.subject}</a>
+			<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
 <%-- 			<c:if test="${dto.gap<1}">
 				<img src="<%=cp%>/resource/images/new.gif">
 			</c:if> --%>
@@ -69,6 +65,35 @@ function send(f){
 		<td>${dto.name}</td>
 		<td>${dto.created}</td>
 		<td>${dto.hitCount}</td>
+		<td>
+			<c:if test="${not empty dto.saveFilename}">
+				<a href="<%=cp%>/notice/download?num=${dto.num}">
+				<img src="<%=cp%>/resource/images/disk.gif">
+				</a>
+			</c:if>
+		</td>
+	</tr>
+	</c:forEach>
+	</c:if>
+	<c:forEach var="dto" items="${list}">
+	<tr align="center" height="40px;" style="border-bottom: 1px solid #gray">
+		<td>${dto.listNum}</td>
+		<td>
+			<a href="${articleUrl}&num=${dto.num}">${dto.subject}</a>
+<%-- 			<c:if test="${dto.gap<1}">
+				<img src="<%=cp%>/resource/images/new.gif">
+			</c:if> --%>
+		</td>
+		<td>${dto.name}</td>
+		<td>${dto.created}</td>
+		<td>${dto.hitCount}</td>
+		<td>
+			<c:if test="${not empty dto.saveFilename}">
+				<a href="<%=cp%>/notice/download?num=${dto.num}">
+				<img src="<%=cp%>/resource/images/disk.gif">
+				</a>
+			</c:if>
+		</td>
 	</tr>
 	</c:forEach>
 	</table>
@@ -80,7 +105,7 @@ function send(f){
 	
 	<tr>
 		<td colspan="6"  align="left">
-		<form name="searchList" method="post" action="<%=cp%>/board/list">
+		<form name="searchList" method="post" action="<%=cp%>/notice/list">
 			<select name="searchKey">
 				<option value="subject">제목</option>
 				<option value="name">작성자</option>
@@ -93,7 +118,7 @@ function send(f){
 			<!-- 그래서 이렇게하면 된다 -->
 			<button type="button" onclick="send(this.form);">검색</button>
 			<button type="button"
-		 onclick="javascript:location.href='<%=cp%>/board/created'">글올리기</button>
+		 onclick="javascript:location.href='<%=cp%>/notice/created'">글올리기</button>
 		</form>
 	</tr>
 

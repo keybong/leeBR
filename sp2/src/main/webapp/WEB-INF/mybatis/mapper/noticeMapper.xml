@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+	<!-- 마이바티스는 null을 허용해도 null을 추가하지 못 하며 null을
+	 추가해야하는 경우에는 jdbcType을 명시한다. -->
+	<insert id="insertNotice" parameterType="com.sp.notice.Notice">
+		INSERT INTO notice (num, name, notice, subject, content, 
+		saveFilename, originalFilename,fileSize) 
+		VALUES 
+		(notice_req.NEXTVAL,#{name},#{notice},#{subject},#{content},
+		#{saveFilename, jdbcType=VARCHAR},#{originalFilename, jdbcType=VARCHAR},#{fileSize})
+		
+	</insert>
+	<sql id="where-list">
+		
+			<if test="searchKey=='subject'">
+				INSTR(subject,#{searchValue}) &gt; 0
+			</if>
+			<if test="searchKey=='name'">
+				INSTR(name,#{searchValue}) &gt; 0
+			</if>
+			<if test="searchKey=='created'">
+				TO_CHAR2(created,'YYYY-MM-DD') = #{searchValue}
+				OR TO_CHAR2(created,'YYYYMMDD') = #{searchValue}
+			</if>
+			<if test="searchKey=='content'">
+				INSTR(content,#{searchValue}) &gt; 0
+			</if>
+		
+	</sql>
+	
+	<select id="dataCount" resultType="Integer" parameterType="map">
+		SELECT NVL(COUNT(*),0) dataCount FROM notice 
+		<where>
+			<if test="searchValue!=null and searchValue!=''">
+			<include refid="where-list"/>
+			</if>
+		</where>
+	</select>
+	
+	<select id="listNotice" resultType="com.sp.notice.Notice" parameterType="map">
+		SELECT * FROM (
+			SELECT ROWNUM rnum, tb.* FROM (
+				SELECT num, name, notice, subject,
+				content, hitCount, TO_CHAR(created,'YYYY-MM-DD') created,
+				saveFilename, fileSize 
+				FROM notice 
+				<where>
+					<if test="searchValue!=null and searchValue!=''">
+					<include refid="where-list"/>
+					</if>
+				</where>
+				ORDER BY num DESC ) tb 
+				WHERE ROWNUM &lt;= #{end}
+		) WHERE rnum &gt;= #{start}
+	</select>
+	<select id="listNoticeTop" resultType="com.sp.notice.Notice">
+		SELECT num, name, notice, subject,
+				content, hitCount, TO_CHAR(created,'YYYY-MM-DD') created,
+				saveFilename 
+				FROM notice WHERE notice=1 
+				ORDER BY num DESC
+	</select>
+	
+	<select id="readNotice" resultType="com.sp.notice.Notice" parameterType="Integer">
+		SELECT num, name, notice, subject, content, hitCount, 
+		created, saveFilename, originalFilename, fileSize FROM notice 
+		WHERE num=#{num}
+	</select>
+	
+	<select id="nextReadNotice" resultType="com.sp.notice.Notice">
+			SELECT tb.* FROM (
+				SELECT num, subject 
+				FROM notice 
+				<where>
+					<if test="searchValue!=null and searchValue!=''">
+					<include refid="where-list"/>
+					</if>
+					AND (num &lt; #{num})
+				</where>
+				ORDER BY num DESC ) tb 
+				WHERE ROWNUM = 1
+	</select>
+	
+	<select id="preReadNotice" resultType="com.sp.notice.Notice">
+		SELECT tb.* FROM (
+				SELECT num, subject 
+				FROM notice 
+				<where>
+					<if test="searchValue!=null and searchValue!=''">
+					<include refid="where-list"/>
+					</if>
+					AND (num &gt; #{num})
+				</where>
+				ORDER BY num ASC ) tb 
+				WHERE ROWNUM = 1
+	</select>
+
+
+	<update id="updateNotice" parameterType="com.sp.notice.Notice">
+		UPDATE notice SET name=#{name}, notice=#{notice} , subject=#{subject} , content= #{content},
+		saveFilename=#{saveFilename, jdbcType=VARCHAR}, originalFilename=#{originalFilename, jdbcType=VARCHAR},
+		fileSize=#{fileSize, jdbcType=VARCHAR} WHERE num=#{num}
+	</update>
+	
+	<delete id="deleteNotice" parameterType="Integer">
+		DELETE notice WHERE num=#{num}
+	</delete>
+</mapper>

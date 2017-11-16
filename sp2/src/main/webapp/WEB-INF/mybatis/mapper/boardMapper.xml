@@ -72,11 +72,11 @@
 						</if>
 						<![CDATA[
 							AND ((groupNum=#{groupNum}
-								AND orderNo <#{orderNo})
-								OR (groupNum >#{groupNum}))
+								AND orderNo < #{orderNo})
+								OR (groupNum > #{groupNum}))
 						]]>
 					</where>
-					ORDER BY groupNum DESC, orderNo ASC ) tb 
+					ORDER BY groupNum ASC, orderNo DESC) tb 
 					WHERE ROWNUM = 1
 	</select>
 	
@@ -101,5 +101,20 @@
 		UPDATE board SET hitCount=hitCount+1 WHERE boardNum=#{boardNum}
 	</update>
 	
+	<update id="updateBoard" parameterType="com.sp.board.Board">
+		UPDATE board SET subject=#{subject}, name=#{name}, content=#{content}, pwd=#{pwd}
+		 WHERE boardNum=#{boardNum}
+	</update>
+	
+	<delete id="deleteBoard" parameterType="Integer">
+		DELETE board WHERE boardNum IN (SELECT boardNum FROM board START
+										WITH boardNum= #{boardNum}
+											CONNECT BY PRIOR boardNum=parent)
+	</delete>
+	
+	<update id="updateOrderNo" parameterType="map">
+		UPDATE board SET orderNo= orderNo+1 
+			WHERE groupNum=#{groupNum} AND orderNo &gt; #{orderNo} 
+	</update>
 	
 </mapper>
